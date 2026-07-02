@@ -1,0 +1,263 @@
+:root {
+  --bg: #0b1020;
+  --panel: #141a2e;
+  --panel-2: #1c2440;
+  --text: #e6ebff;
+  --muted: #8b93b0;
+  --accent: #4f8cff;
+  --ok: #35c46b;
+  --warn: #f5a623;
+  --crit: #ff5470;
+  --border: #26304f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  background: linear-gradient(90deg, #10162b, #0b1020);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar h1 {
+  font-size: 18px;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.topbar .brand-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+.conn {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.conn .pill {
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+
+.conn .live {
+  color: var(--ok);
+  border-color: var(--ok);
+}
+
+.conn .down {
+  color: var(--crit);
+  border-color: var(--crit);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  min-height: 0;
+}
+
+.map-wrap {
+  position: relative;
+  min-height: 0;
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  background: #0a0f1e;
+}
+
+.sidebar {
+  border-left: 1px solid var(--border);
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.card {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.card h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
+
+.health-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.stat {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+
+.stat .n {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.stat .l {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.alerts {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.alert {
+  display: flex;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+.alert .bar {
+  width: 4px;
+  border-radius: 4px;
+  flex: 0 0 4px;
+}
+
+.alert.critical .bar {
+  background: var(--crit);
+}
+.alert.warning .bar {
+  background: var(--warn);
+}
+.alert.info .bar {
+  background: var(--accent);
+}
+
+.alert .body {
+  font-size: 13px;
+}
+
+.alert .meta {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.command-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.command-bar .row {
+  display: flex;
+  gap: 8px;
+}
+
+select,
+button,
+input {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+button {
+  cursor: pointer;
+  flex: 1;
+  transition: background 0.15s;
+}
+
+button:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.toast {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  z-index: 1000;
+}
+
+.legend {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background: rgba(20, 26, 46, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  z-index: 1000;
+}
+
+.legend .dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
