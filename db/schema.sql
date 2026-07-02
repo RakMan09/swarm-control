@@ -29,8 +29,11 @@ CREATE INDEX IF NOT EXISTS telemetry_vehicle_ts_idx
 -- 1-minute continuous aggregate for fast dashboard/history queries.
 -- Pre-downsampled rollups keep "last 24h" queries cheap at fleet scale.
 -- ---------------------------------------------------------------------------
+-- materialized_only=false enables real-time aggregation: queries union the
+-- materialized buckets with the most recent (not-yet-rolled-up) raw data, so
+-- "last N minutes" is correct immediately instead of lagging the refresh policy.
 CREATE MATERIALIZED VIEW IF NOT EXISTS telemetry_1m
-WITH (timescaledb.continuous) AS
+WITH (timescaledb.continuous, timescaledb.materialized_only = false) AS
 SELECT
   vehicle_id,
   time_bucket('1 minute', ts) AS bucket,
