@@ -132,6 +132,66 @@ body {
   margin: 0 0 10px;
 }
 
+.about-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+
+.about-head .chev {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.about-body p {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text);
+  margin: 0 0 8px;
+}
+
+.about-nav-title {
+  color: var(--muted) !important;
+  font-size: 11px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-top: 4px !important;
+}
+
+.about-body ul {
+  margin: 0;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.about-body li {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.about-body li b {
+  color: var(--text);
+}
+
+.about-body .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: var(--text);
+}
+
+.about-demo {
+  color: #ffd479 !important;
+  background: rgba(245, 166, 35, 0.1);
+  border: 1px solid #6b5320;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
 .health-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
