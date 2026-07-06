@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createDataSource, type DataSource } from "./datasource";
 import type { Alert, VehicleState } from "./types";
+import AboutPanel from "./components/AboutPanel";
 import AlertsPanel from "./components/AlertsPanel";
 import CommandBar from "./components/CommandBar";
 import FleetHealth from "./components/FleetHealth";
@@ -131,6 +132,7 @@ export default function App() {
         </div>
 
         <div className="sidebar">
+          <AboutPanel demo={ds.isDemo} />
           <FleetHealth vehicles={vehicleList} alertCount={alerting.size} />
           <CommandBar
             vehicles={vehicleList}
