@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { fetchAlerts, fetchFleet, wsUrl } from "./api";
-import type { Alert, VehicleState, WsEnvelope } from "./types";
+import { createDataSource, type DataSource } from "./datasource";
+import type { Alert, VehicleState } from "./types";
 import AlertsPanel from "./components/AlertsPanel";
 import CommandBar from "./components/CommandBar";
 import FleetHealth from "./components/FleetHealth";
@@ -17,72 +17,62 @@ export default function App() {
   const [selected, setSelected] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const trails = useRef<Record<string, [number, number][]>>({});
+  const dsRef = useRef<DataSource | null>(null);
+  if (dsRef.current === null) dsRef.current = createDataSource();
+  const ds = dsRef.current;
 
-  // Initial REST snapshot.
+  const applyFleet = (list: VehicleState[]) => {
+    setVehicles((prev) => {
+      const next = { ...prev };
+      for (const v of list) {
+        next[v.vehicleId] = v;
+        const t = trails.current[v.vehicleId] ?? [];
+        t.push([v.lat, v.lon]);
+        if (t.length > MAX_TRAIL) t.shift();
+        trails.current[v.vehicleId] = t;
+      }
+      return next;
+    });
+  };
+
+  // Initial snapshot.
   useEffect(() => {
-    fetchFleet()
+    ds.initialFleet()
       .then((list) => {
         const map: Record<string, VehicleState> = {};
         for (const v of list) map[v.vehicleId] = v;
         setVehicles(map);
       })
       .catch(() => {});
-    fetchAlerts()
+    ds.initialAlerts()
       .then((a) => setAlerts(a.slice(0, MAX_ALERTS)))
       .catch(() => {});
-  }, []);
+  }, [ds]);
 
-  // Live websocket stream with auto-reconnect.
+  // Live stream (WebSocket for the real backend, or the demo engine).
   useEffect(() => {
-    let ws: WebSocket | null = null;
-    let stop = false;
-    let retry: ReturnType<typeof setTimeout>;
-
-    const connect = () => {
-      ws = new WebSocket(wsUrl());
-      ws.onopen = () => setConnected(true);
-      ws.onclose = () => {
-        setConnected(false);
-        if (!stop) retry = setTimeout(connect, 2000);
-      };
-      ws.onerror = () => ws?.close();
-      ws.onmessage = (ev) => {
-        let msg: WsEnvelope;
-        try {
-          msg = JSON.parse(ev.data);
-        } catch {
-          return;
-        }
-        if (msg.type === "fleet") {
-          setVehicles((prev) => {
-            const next = { ...prev };
-            for (const v of msg.data) {
-              next[v.vehicleId] = v;
-              const t = trails.current[v.vehicleId] ?? [];
-              t.push([v.lat, v.lon]);
-              if (t.length > MAX_TRAIL) t.shift();
-              trails.current[v.vehicleId] = t;
-            }
-            return next;
-          });
-        } else if (msg.type === "alert") {
-          setAlerts((prev) => [msg.data, ...prev].slice(0, MAX_ALERTS));
-        }
-      };
-    };
-    connect();
-    return () => {
-      stop = true;
-      clearTimeout(retry);
-      ws?.close();
-    };
-  }, []);
+    const disconnect = ds.connect({
+      onFleet: applyFleet,
+      onAlert: (a) => setAlerts((prev) => [a, ...prev].slice(0, MAX_ALERTS)),
+      onStatus: setConnected,
+    });
+    return disconnect;
+  }, [ds]);
 
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(null), 3000);
     return () => clearTimeout(t);
   }, [toast]);
+
+  const sendCommand = async (vehicleId: string, type: string, payload?: Record<string, unknown>) => {
+    try {
+      await ds.sendCommand({ vehicleId, type, payload });
+      setToast(`Sent ${type} to ${vehicleId}`);
+    } catch (e) {
+      setToast(`Command failed: ${(e as Error).message}`);
+    }
+  };
 
   const vehicleList = useMemo(() => Object.values(vehicles), [vehicles]);
 
@@ -101,6 +91,7 @@ export default function App() {
         <span className="brand-dot" />
         <h1>SwarmControl</h1>
         <span className="hint">mission control · simulated fleet telemetry</span>
+        {ds.isDemo && <span className="demo-badge">DEMO MODE · in-browser simulation</span>}
         <div className="conn">
           <span>{vehicleList.length} vehicles</span>
           <span className={`pill ${connected ? "live" : "down"}`}>
@@ -145,7 +136,7 @@ export default function App() {
             vehicles={vehicleList}
             selected={selected}
             onSelect={setSelected}
-            onToast={setToast}
+            onSend={(type, payload) => sendCommand(selected as string, type, payload)}
           />
           <AlertsPanel alerts={alerts} onSelect={setSelected} />
         </div>

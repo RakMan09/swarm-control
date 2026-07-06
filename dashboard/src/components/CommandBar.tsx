@@ -1,25 +1,21 @@
 import { useState } from "react";
-import { sendCommand } from "../api";
 import type { VehicleState } from "../types";
 
 interface Props {
   vehicles: VehicleState[];
   selected: string | null;
   onSelect: (id: string) => void;
-  onToast: (msg: string) => void;
+  onSend: (type: string, payload?: Record<string, unknown>) => Promise<void>;
 }
 
-export default function CommandBar({ vehicles, selected, onSelect, onToast }: Props) {
+export default function CommandBar({ vehicles, selected, onSelect, onSend }: Props) {
   const [busy, setBusy] = useState(false);
 
   async function send(type: string, payload?: Record<string, unknown>) {
     if (!selected) return;
     setBusy(true);
     try {
-      await sendCommand({ vehicleId: selected, type, payload });
-      onToast(`Sent ${type} to ${selected}`);
-    } catch (e) {
-      onToast(`Command failed: ${(e as Error).message}`);
+      await onSend(type, payload);
     } finally {
       setBusy(false);
     }
